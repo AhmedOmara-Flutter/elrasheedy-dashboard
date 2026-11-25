@@ -41,46 +41,48 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyA1ibu_X-MUxKgltOa8TQPcPZ3gS1hObsU',
-    appId: '1:80410007107:web:4e2d6ce145d83b4c5b26f6',
-    messagingSenderId: '80410007107',
-    projectId: 'am-adel-restaurant',
-    authDomain: 'am-adel-restaurant.firebaseapp.com',
-    storageBucket: 'am-adel-restaurant.firebasestorage.app',
-    measurementId: 'G-MTPLXLB6J8',
+    apiKey: 'AIzaSyAW1fOBpqdnec_YHfszegsl65Bn45KNJXk',
+    appId: '1:64389969346:web:e011db13e7d755c596d25b',
+    messagingSenderId: '64389969346',
+    projectId: 'elrasheedy-resturant',
+    authDomain: 'elrasheedy-resturant.firebaseapp.com',
+    storageBucket: 'elrasheedy-resturant.firebasestorage.app',
+    measurementId: 'G-J23T33NCE3',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBE1cQKyMh6HARg9CH2OAQQwe0xdxBHr-4',
-    appId: '1:80410007107:android:337e6b90b6d503195b26f6',
-    messagingSenderId: '80410007107',
-    projectId: 'am-adel-restaurant',
-    storageBucket: 'am-adel-restaurant.firebasestorage.app',
+    apiKey: 'AIzaSyB-Hs2uSz46pWAezshuLsE1ItGIpNGUInE',
+    appId: '1:64389969346:android:80aa29455a5e477e96d25b',
+    messagingSenderId: '64389969346',
+    projectId: 'elrasheedy-resturant',
+    storageBucket: 'elrasheedy-resturant.firebasestorage.app',
   );
+
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCEpoqphQwj5XHwErfTVAKXRIvUDazFGRg',
-    appId: '1:80410007107:ios:14926c7d01698d6f5b26f6',
-    messagingSenderId: '80410007107',
-    projectId: 'am-adel-restaurant',
-    storageBucket: 'am-adel-restaurant.firebasestorage.app',
-    iosBundleId: 'com.example.amAdelDashboard',
+    apiKey: 'AIzaSyD7UNUES1Ovb-90HiNsPIVOV9XCbCK8ZZI',
+    appId: '1:64389969346:ios:78aaf9b59e04b06596d25b',
+    messagingSenderId: '64389969346',
+    projectId: 'elrasheedy-resturant',
+    storageBucket: 'elrasheedy-resturant.firebasestorage.app',
+    iosBundleId: 'com.example.elrasheedyDashboard',
   );
+
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCEpoqphQwj5XHwErfTVAKXRIvUDazFGRg',
-    appId: '1:80410007107:ios:14926c7d01698d6f5b26f6',
-    messagingSenderId: '80410007107',
-    projectId: 'am-adel-restaurant',
-    storageBucket: 'am-adel-restaurant.firebasestorage.app',
-    iosBundleId: 'com.example.amAdelDashboard',
+    apiKey: 'AIzaSyD7UNUES1Ovb-90HiNsPIVOV9XCbCK8ZZI',
+    appId: '1:64389969346:ios:78aaf9b59e04b06596d25b',
+    messagingSenderId: '64389969346',
+    projectId: 'elrasheedy-resturant',
+    storageBucket: 'elrasheedy-resturant.firebasestorage.app',
+    iosBundleId: 'com.example.elrasheedyDashboard',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyA1ibu_X-MUxKgltOa8TQPcPZ3gS1hObsU',
-    appId: '1:80410007107:web:709ae1b721e79dd75b26f6',
-    messagingSenderId: '80410007107',
-    projectId: 'am-adel-restaurant',
-    authDomain: 'am-adel-restaurant.firebaseapp.com',
-    storageBucket: 'am-adel-restaurant.firebasestorage.app',
-    measurementId: 'G-R925PW9Z2W',
+    apiKey: 'AIzaSyAW1fOBpqdnec_YHfszegsl65Bn45KNJXk',
+    appId: '1:64389969346:web:e5a2be040f9ca14f96d25b',
+    messagingSenderId: '64389969346',
+    projectId: 'elrasheedy-resturant',
+    authDomain: 'elrasheedy-resturant.firebaseapp.com',
+    storageBucket: 'elrasheedy-resturant.firebasestorage.app',
+    measurementId: 'G-5B9KQEKH5T',
   );
 }

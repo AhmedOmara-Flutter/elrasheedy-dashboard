@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "64389969346",
+    "project_id": "elrasheedy-resturant",
+    "storage_bucket": "elrasheedy-resturant.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64389969346:android:80aa29455a5e477e96d25b",
+        "android_client_info": {
+          "package_name": "com.example.elrasheedy_dashboard"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-Hs2uSz46pWAezshuLsE1ItGIpNGUInE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64389969346:android:efab435c96be4d5596d25b",
+        "android_client_info": {
+          "package_name": "com.example.elrasheedy_market"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB-Hs2uSz46pWAezshuLsE1ItGIpNGUInE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
