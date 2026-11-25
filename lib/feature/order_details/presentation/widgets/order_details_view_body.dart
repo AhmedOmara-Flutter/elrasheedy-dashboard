@@ -1,0 +1,64 @@
+import 'package:elrasheedy_dashboard/core/entities/order_entity.dart';
+import 'package:elrasheedy_dashboard/feature/order_details/presentation/widgets/order_note_card_section.dart';
+import 'package:elrasheedy_dashboard/feature/order_details/presentation/widgets/order_print_section.dart';
+import 'package:elrasheedy_dashboard/feature/order_details/presentation/widgets/order_summary_card_section.dart';
+import 'package:elrasheedy_dashboard/feature/order_details/presentation/widgets/payment_card_section.dart';
+import 'package:elrasheedy_dashboard/feature/order_details/presentation/widgets/products_section.dart';
+import 'package:flutter/material.dart';
+import '../../../../core/services/print_service.dart';
+import 'customer_info_section.dart';
+import 'delivery_address_section.dart';
+import 'order_header_section.dart';
+
+class OrderDetailsViewBody extends StatelessWidget {
+  final OrderEntity order;
+  final int orderNumber;
+
+  const OrderDetailsViewBody({
+    super.key,
+    required this.order,
+    required this.orderNumber,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: EdgeInsets.only(left: 10, right: 10, bottom: 20, top: 10),
+      child: Column(
+        children: [
+          OrderHeaderSection(order: order),
+          SizedBox(height: 10),
+
+          CustomerInfoSection(order: order),
+          SizedBox(height: 10),
+
+          DeliveryAddressSection(order: order),
+          SizedBox(height: 10),
+
+          ProductsSection(order: order),
+          SizedBox(height: 10),
+
+          OrderNoteCardSection(note: order.orderNote),
+
+          PaymentCardSection(
+            paymentMethod: order.isCashOnDelivery == true ? 'Cash' : 'Online',
+            paymentImage: order.paymentImage,
+          ),
+          SizedBox(height: 10),
+          OrderSummaryCardSection(
+            subTotal: order.cartEntity.getTotalPrice(),
+            deliveryCost: order.selectedLocationEntity!.cost,
+            couponDiscount: order.couponDiscount,
+          ),
+          SizedBox(height: 10),
+
+          OrderPrintSection(
+            onPressed: () async {
+              await PrintService.printOrder(order, orderNumber);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}

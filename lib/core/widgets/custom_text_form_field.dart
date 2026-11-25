@@ -1,0 +1,155 @@
+import 'package:flutter/material.dart';
+
+import '../utils/app_color.dart';
+
+class CustomTextFormField extends StatelessWidget {
+  final TextEditingController? controller;
+  final TextInputType? keyboardType;
+  final TextCapitalization textCapitalization;
+  final void Function(String?)? onSaved;
+  final void Function(String)? onChanged;
+  final void Function(String)? onFieldSubmitted;
+  final String? hintText;
+  final String? labelText;
+  final String? Function(String?)? validator;
+  final AutovalidateMode? autoValidateMode;
+  final int? maxLines;
+  final String? label;
+  final bool readOnly;
+  final IconData? prefixIcon;
+
+  const CustomTextFormField({
+    super.key,
+    this.controller,
+    this.keyboardType,
+    this.textCapitalization = TextCapitalization.none,
+    this.hintText,
+    this.validator,
+    this.autoValidateMode = AutovalidateMode.onUserInteraction,
+    this.onSaved,
+    this.onChanged,
+    this.onFieldSubmitted,
+    this.maxLines,
+    this.labelText,
+    this.label,
+    this.readOnly = false,
+    this.prefixIcon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (label != null)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label!,
+                style: Theme.of(context).textTheme.titleMedium!.copyWith(
+                  color: AppColor.textPrimary,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(width: 8),
+              const CircleAvatar(
+                backgroundColor: AppColor.red,
+                radius: 2,
+              ),
+            ],
+          ),
+
+        if (label != null) const SizedBox(height: 8),
+
+        TextFormField(
+          readOnly: readOnly,
+          controller: controller,
+          keyboardType: keyboardType,
+          textCapitalization: textCapitalization,
+          maxLines: maxLines,
+          onSaved: onSaved,
+          onChanged: onChanged,
+          onFieldSubmitted: onFieldSubmitted,
+          autovalidateMode: autoValidateMode,
+          validator: validator,
+          style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+            color: AppColor.textPrimary,
+            fontSize: 13,
+          ),
+          cursorColor: AppColor.mainColor,
+
+          decoration: InputDecoration(
+            hintText: hintText,
+            labelText: labelText,
+
+            hintStyle: const TextStyle(
+              color: AppColor.textSecondary,
+              fontSize: 12,
+            ),
+
+            labelStyle: const TextStyle(
+              color: AppColor.textSecondary,
+              fontSize: 14,
+            ),
+
+            floatingLabelStyle: const TextStyle(
+              color: AppColor.mainColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+
+            prefixIcon: prefixIcon != null
+                ? Icon(
+              prefixIcon,
+              color: AppColor.accentColor,
+              size: 20,
+            )
+                : null,
+
+            filled: true,
+            fillColor: AppColor.inputFill,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 15,
+            ),
+
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+
+            ),
+
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+
+            ),
+
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+
+            ),
+
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

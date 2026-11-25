@@ -1,0 +1,31 @@
+import 'package:elrasheedy_dashboard/core/entities/product_entity.dart';
+import 'package:elrasheedy_dashboard/core/extension/responsive_extension.dart';
+import 'package:elrasheedy_dashboard/feature/my_products/presentation/widgets/paused_product_button.dart';
+import 'package:elrasheedy_dashboard/feature/my_products/presentation/widgets/remove_offer_button.dart';
+import 'package:flutter/material.dart';
+
+import '../../../offers/domain/entities/offer_entity.dart';
+
+class ProductActionsSection extends StatelessWidget {
+  final ProductEntity product;
+  final bool hasOffer;
+  final OfferEntity? offer;
+
+  const ProductActionsSection({
+    super.key,
+    required this.hasOffer,
+    required this.product,
+    this.offer,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        RemoveOfferButton(hasOffer: hasOffer, offer: offer, product: product),
+        const SizedBox(width: 10),
+        PausedProductButton(product: product),
+      ],
+    );
+  }
+}

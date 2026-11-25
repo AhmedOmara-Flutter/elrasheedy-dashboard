@@ -1,0 +1,8 @@
+import 'package:dartz/dartz.dart';
+import 'package:elrasheedy_dashboard/core/errors/failure.dart';
+import 'package:elrasheedy_dashboard/core/entities/user_entity.dart';
+
+abstract class ClientsRepo {
+  Stream<Either<Failure,List<UserEntity>>>getClients();
+  Stream<Either<Failure, int>> getCustomerOrdersCount(String uId);
+}

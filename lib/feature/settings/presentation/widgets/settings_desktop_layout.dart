@@ -1,0 +1,42 @@
+import 'package:elrasheedy_dashboard/feature/settings/presentation/widgets/build_copy_right.dart';
+import 'package:elrasheedy_dashboard/feature/settings/presentation/widgets/print_settings_tile.dart';
+import 'package:elrasheedy_dashboard/feature/settings/presentation/widgets/setting_danger_card.dart';
+import 'package:flutter/material.dart';
+import 'manager_info_card_desktop.dart';
+
+class SettingsDesktopLayout extends StatelessWidget {
+  const SettingsDesktopLayout({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const ManagerInfoCardDesktop(),
+        const SizedBox(height: 10),
+        const PrintSettingsTile(),
+        const SizedBox(height: 10),
+        Row(
+          children: [
+            Expanded(
+              child: buildOrdersDangerCard(context),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: buildCartDangerCard(context),
+            ),
+            // const SizedBox(width: 20),
+            // Expanded(
+            //   child: buildBundleOffersDangerCard(context),
+            // ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: buildOffersDangerCard(context),
+            ),
+          ],
+        ),
+        SizedBox(height: 100,),
+        const BuildCopyRight(),
+      ],
+    );
+  }
+}

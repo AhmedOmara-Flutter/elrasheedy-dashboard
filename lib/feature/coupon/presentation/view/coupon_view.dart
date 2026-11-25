@@ -1,0 +1,50 @@
+import 'package:elrasheedy_dashboard/core/services/database_services.dart';
+import 'package:elrasheedy_dashboard/core/utils/app_color.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../core/widgets/custom_floating_action_button.dart';
+import '../../data/repos/coupon_repo_impl.dart';
+import '../view_model/add_coupon_cubit/add_coupon_cubit.dart';
+import '../view_model/delete_coupon_cubit/delete_coupon_cubit.dart';
+import '../view_model/get_coupon_cubit/get_coupon_cubit.dart';
+import '../widgets/add_coupon_bottom_sheet.dart';
+import '../widgets/coupon_view_body.dart';
+
+class CouponView extends StatelessWidget {
+  const CouponView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) =>
+              GetCouponCubit(CouponRepoImpl(FirestoreDatabase()))..getCoupons(),
+        ),
+        BlocProvider(
+          create: (_) => DeleteCouponCubit(CouponRepoImpl(FirestoreDatabase())),
+        ),
+      ],
+      child: Scaffold(
+        floatingActionButton: CustomFloatingActionButton(
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: AppColor.background,
+              builder: (_) {
+                return BlocProvider(
+                  create: (_) => AddCouponCubit(
+                    CouponRepoImpl(FirestoreDatabase()),
+                  ),
+                  child: const AddCouponBottomSheet(),
+                );
+              },
+            );
+          },
+        ),        body: const CouponViewBody(),
+      ),
+    );
+  }
+}
