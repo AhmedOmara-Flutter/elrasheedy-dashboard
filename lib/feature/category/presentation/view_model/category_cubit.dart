@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
+import 'package:elrasheedy_dashboard/core/repos/upload_image_repo/upload_image_repo.dart';
 import 'package:meta/meta.dart';
 
 import '../../domain/repos/category_repo.dart';
@@ -10,10 +12,12 @@ part 'category_state.dart';
 
 class CategoryCubit extends Cubit<CategoryState> {
   final CategoryRepo _categoryRepo;
+  final UploadImageRepo _uploadImageRepo;
 
   StreamSubscription<List<CategoryEntity>>? _categoriesSubscription;
 
-  CategoryCubit(this._categoryRepo) : super(CategoryInitial());
+  CategoryCubit(this._categoryRepo, this._uploadImageRepo)
+      : super(CategoryInitial());
 
   List<CategoryEntity> categories = [];
 
@@ -64,18 +68,33 @@ class CategoryCubit extends Cubit<CategoryState> {
 
   Future<void> addCategory(
       CategoryEntity category,
+      File image,
       ) async {
     if (isClosed) return;
 
     emit(CategoryAddLoading());
 
     try {
-      await _categoryRepo.addCategory(category);
+      // ارفع الصورة الأول وبعدين ضيف القسم برابطها
+      final result = await _uploadImageRepo.uploadImage(image);
 
-      // مهم جدًا بعد await
       if (isClosed) return;
 
-      emit(CategoryAddSuccess());
+      await result.fold(
+            (failure) async {
+          emit(CategoryAddError(message: failure.errMessage));
+        },
+            (imageUrl) async {
+          await _categoryRepo.addCategory(
+            _withImage(category, imageUrl),
+          );
+
+          // مهم جدًا بعد await
+          if (isClosed) return;
+
+          emit(CategoryAddSuccess());
+        },
+      );
     } catch (e) {
       // لو Cubit اتقفل أثناء العملية
       if (isClosed) return;
@@ -92,20 +111,45 @@ class CategoryCubit extends Cubit<CategoryState> {
   // UPDATE CATEGORY
   // ============================================================
 
+  /// ابعت newImage بس لو المستخدم اختار صورة جديدة،
+  /// غير كده الصورة القديمة بتفضل زي ما هي.
   Future<void> updateCategory(
-      CategoryEntity category,
-      ) async {
+      CategoryEntity category, {
+        File? newImage,
+      }) async {
     if (isClosed) return;
 
     emit(CategoryUpdateLoading());
 
     try {
-      await _categoryRepo.updateCategory(category);
+      if (newImage == null) {
+        await _categoryRepo.updateCategory(category);
 
-      // مهم جدًا بعد await
+        // مهم جدًا بعد await
+        if (isClosed) return;
+
+        emit(CategoryUpdateSuccess());
+        return;
+      }
+
+      final result = await _uploadImageRepo.uploadImage(newImage);
+
       if (isClosed) return;
 
-      emit(CategoryUpdateSuccess());
+      await result.fold(
+            (failure) async {
+          emit(CategoryUpdateError(message: failure.errMessage));
+        },
+            (imageUrl) async {
+          await _categoryRepo.updateCategory(
+            _withImage(category, imageUrl),
+          );
+
+          if (isClosed) return;
+
+          emit(CategoryUpdateSuccess());
+        },
+      );
     } catch (e) {
       if (isClosed) return;
 
@@ -218,6 +262,21 @@ class CategoryCubit extends Cubit<CategoryState> {
     } catch (e) {
       return false;
     }
+  }
+
+  // ============================================================
+  // HELPERS
+  // ============================================================
+
+  CategoryEntity _withImage(CategoryEntity category, String imageUrl) {
+    return CategoryEntity(
+      id: category.id,
+      name: category.name,
+      imageUrl: imageUrl,
+      sizes: category.sizes,
+      createdAt: category.createdAt,
+      sortOrder: category.sortOrder,
+    );
   }
 
   // ============================================================

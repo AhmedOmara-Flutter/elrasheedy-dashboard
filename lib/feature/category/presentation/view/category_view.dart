@@ -1,3 +1,5 @@
+import 'package:elrasheedy_dashboard/core/repos/upload_image_repo/upload_image_repo_impl.dart';
+import 'package:elrasheedy_dashboard/core/services/storage_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,7 +18,10 @@ class CategoryView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) =>
-          CategoryCubit(CategoryRepoImpl(FirestoreDatabase()))..getCategories(),
+      CategoryCubit(CategoryRepoImpl(FirestoreDatabase()),
+          UploadImageRepoImpl(SupabaseStorage())
+      )
+        ..getCategories(),
 
       child: Scaffold(
         backgroundColor: AppColor.background,
@@ -30,7 +35,8 @@ class CategoryView extends StatelessWidget {
               builder: (_) {
                 return BlocProvider(
                   create: (_) => CategoryCubit(
-                    CategoryRepoImpl(FirestoreDatabase()),
+                      CategoryRepoImpl(FirestoreDatabase(),),
+                      UploadImageRepoImpl(SupabaseStorage())
                   ),
                   child: const AddCategoryBottomSheet(),
                 );

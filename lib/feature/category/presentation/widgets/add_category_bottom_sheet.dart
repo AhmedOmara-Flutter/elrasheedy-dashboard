@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../../core/helper_function/custom_show_snake_bar.dart';
 import '../../../../../core/utils/app_color.dart';
 import '../../../../../core/utils/style_manager.dart';
@@ -25,6 +28,13 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
 
   final List<String> _sizes = [];
 
+  final ImagePicker _picker = ImagePicker();
+
+  File? _image;
+
+  bool get _isLoading =>
+      context.read<CategoryCubit>().state is CategoryAddLoading;
+
   bool get _canAddSize {
     final size = _sizeController.text.trim();
 
@@ -33,7 +43,7 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
     }
 
     final isDuplicate = _sizes.any(
-      (item) => item.trim().toLowerCase() == size.toLowerCase(),
+          (item) => item.trim().toLowerCase() == size.toLowerCase(),
     );
 
     return !isDuplicate;
@@ -46,6 +56,10 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
       return false;
     }
 
+    if (_image == null) {
+      return false;
+    }
+
     if (_sizes.isEmpty) {
       return false;
     }
@@ -53,16 +67,57 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
     final categories = context.read<CategoryCubit>().categories;
 
     final isDuplicate = categories.any(
-      (category) => category.name.trim().toLowerCase() == name.toLowerCase(),
+          (category) => category.name.trim().toLowerCase() == name.toLowerCase(),
     );
 
     return !isDuplicate;
   }
 
-  void _addSize() {
-    final cubit = context.read<CategoryCubit>();
+  Future<void> _pickImage() async {
+    if (_isLoading) {
+      return;
+    }
 
-    if (cubit.state is CategoryAddLoading) {
+    FocusScope.of(context).unfocus();
+
+    try {
+      // الضغط بيتعمل في StorageServices وقت الرفع
+      final file = await _picker.pickImage(source: ImageSource.gallery);
+
+      if (file == null || !mounted) {
+        return;
+      }
+
+      setState(() {
+        _image = File(file.path);
+      });
+    } catch (e) {
+      debugPrint('pickImage error: $e');
+
+      if (!mounted) {
+        return;
+      }
+
+      customShowSnakeBar(
+        context,
+        color: AppColor.red,
+        label: 'تعذر اختيار الصورة، حاول مرة أخرى',
+      );
+    }
+  }
+
+  void _removeImage() {
+    if (_isLoading) {
+      return;
+    }
+
+    setState(() {
+      _image = null;
+    });
+  }
+
+  void _addSize() {
+    if (_isLoading) {
       return;
     }
 
@@ -78,7 +133,7 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
     }
 
     final isDuplicate = _sizes.any(
-      (item) => item.trim().toLowerCase() == size.toLowerCase(),
+          (item) => item.trim().toLowerCase() == size.toLowerCase(),
     );
 
     if (isDuplicate) {
@@ -97,9 +152,7 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
   }
 
   void _removeSize(String size) {
-    final cubit = context.read<CategoryCubit>();
-
-    if (cubit.state is CategoryAddLoading) {
+    if (_isLoading) {
       return;
     }
 
@@ -113,11 +166,22 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
 
     final cubit = context.read<CategoryCubit>();
 
-    if (cubit.state is CategoryAddLoading) {
+    if (_isLoading) {
       return;
     }
 
     if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final image = _image;
+
+    if (image == null) {
+      customShowSnakeBar(
+        context,
+        color: AppColor.red,
+        label: 'برجاء اختيار صورة التصنيف',
+      );
       return;
     }
 
@@ -135,8 +199,8 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
     final categories = cubit.categories;
 
     final isDuplicateCategory = categories.any(
-      (category) =>
-          category.name.trim().toLowerCase() == categoryName.toLowerCase(),
+          (category) =>
+      category.name.trim().toLowerCase() == categoryName.toLowerCase(),
     );
 
     if (isDuplicateCategory) {
@@ -151,12 +215,13 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
     final category = CategoryEntity(
       id: '',
       name: categoryName,
+      imageUrl: '', // الـ cubit بيحط الرابط بعد الرفع
       sizes: List<String>.from(_sizes),
       createdAt: DateTime.now(),
       sortOrder: 0,
     );
 
-    cubit.addCategory(category);
+    cubit.addCategory(category, image);
   }
 
   @override
@@ -194,7 +259,7 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
           children: [
             CustomBottomSheetContainer(
               title: 'إضافة تصنيف جديد',
-              subtitle: 'أضف اسم التصنيف والأحجام المتاحه للمنتجات',
+              subtitle: 'أضف اسم التصنيف وصورته والأحجام المتاحه للمنتجات',
               icon: Icons.category,
               child: Form(
                 key: _formKey,
@@ -204,10 +269,23 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // ===== صورة التصنيف =====
+                        _RequiredLabel(text: 'صورة التصنيف'),
+
+                        const SizedBox(height: 10),
+
+                        _ImagePickerBox(
+                          image: _image,
+                          onPick: isLoading ? null : _pickImage,
+                          onRemove: isLoading ? null : _removeImage,
+                        ),
+
+                        const SizedBox(height: 24),
+
                         CustomTextFormField(
                           keyboardType: TextInputType.text,
                           autoValidateMode:
-                              AutovalidateMode.onUserInteraction,
+                          AutovalidateMode.onUserInteraction,
                           label: 'اسم التصنيف',
                           controller: _nameController,
                           hintText: 'مثال: بيتزا',
@@ -230,8 +308,8 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                                 .categories;
 
                             final isDuplicate = categories.any(
-                              (category) =>
-                                  category.name.trim().toLowerCase() ==
+                                  (category) =>
+                              category.name.trim().toLowerCase() ==
                                   name.toLowerCase(),
                             );
 
@@ -245,25 +323,7 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
 
                         const SizedBox(height: 24),
 
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'المقاسات',
-                              style: StyleManager.font14Weight600(
-                                context,
-                              ).copyWith(color: AppColor.textPrimary),
-                            ),
-                            const SizedBox(width: 6),
-                            const Text(
-                              '*',
-                              style: TextStyle(
-                                color: AppColor.red,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
+                        _RequiredLabel(text: 'المقاسات'),
 
                         const SizedBox(height: 10),
 
@@ -301,9 +361,9 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                                       : AppColor.backgroundDark,
                                   foregroundColor: AppColor.white,
                                   disabledBackgroundColor:
-                                      AppColor.backgroundDark,
+                                  AppColor.backgroundDark,
                                   disabledForegroundColor:
-                                      AppColor.textSecondary,
+                                  AppColor.textSecondary,
                                   elevation: canAddSize ? 2 : 0,
                                   shape: const CircleBorder(),
                                 ),
@@ -358,8 +418,8 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                                       onTap: isLoading
                                           ? null
                                           : () {
-                                              _removeSize(size);
-                                            },
+                                        _removeSize(size);
+                                      },
                                       borderRadius: BorderRadius.circular(
                                         20,
                                       ),
@@ -406,15 +466,15 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
                         ],
                       ],
                     ),
-              
+
                     const SizedBox(height: 24),
-              
+
                     CustomButton(
                       onPressed: canAddCategory ? _addCategory : null,
                       child: Text(
                         'إضافة التصنيف',
                         style: StyleManager.font15Weight800(context).copyWith(
-                          color: AppColor.white
+                          color: AppColor.white,
                         ),
                       ),
                     ),
@@ -428,6 +488,118 @@ class _AddCategoryBottomSheetState extends State<AddCategoryBottomSheet> {
           ],
         );
       },
+    );
+  }
+}
+
+/// عنوان حقل مطلوب (بنجمة حمرا)
+class _RequiredLabel extends StatelessWidget {
+  final String text;
+
+  const _RequiredLabel({required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          text,
+          style: StyleManager.font14Weight600(
+            context,
+          ).copyWith(color: AppColor.textPrimary),
+        ),
+        const SizedBox(width: 6),
+        const Text(
+          '*',
+          style: TextStyle(
+            color: AppColor.red,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// مربع اختيار الصورة ومعاينتها
+class _ImagePickerBox extends StatelessWidget {
+  final File? image;
+  final VoidCallback? onPick;
+  final VoidCallback? onRemove;
+
+  const _ImagePickerBox({
+    required this.image,
+    required this.onPick,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final file = image;
+
+    return Center(
+      child: Stack(
+        children: [
+          InkWell(
+            onTap: onPick,
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              width: 150,
+              height: 150,
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: AppColor.background,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: file == null ? AppColor.divider : AppColor.accentColor,
+                  width: 1.4,
+                ),
+              ),
+              child: file == null
+                  ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.add_photo_alternate_outlined,
+                    size: 40,
+                    color: AppColor.accentColor,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'اضغط لاختيار صورة',
+                    style: StyleManager.font12Weight500(
+                      context,
+                    ).copyWith(color: AppColor.textSecondary),
+                  ),
+                ],
+              )
+                  : Image.file(file, fit: BoxFit.cover),
+            ),
+          ),
+          if (file != null)
+            PositionedDirectional(
+              top: 6,
+              end: 6,
+              child: Material(
+                color: AppColor.white,
+                shape: const CircleBorder(),
+                child: InkWell(
+                  onTap: onRemove,
+                  customBorder: const CircleBorder(),
+                  child: const Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Icon(
+                      Icons.close_rounded,
+                      size: 18,
+                      color: AppColor.red,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

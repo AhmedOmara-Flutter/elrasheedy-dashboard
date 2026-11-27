@@ -74,11 +74,20 @@ flutter_launcher_icons:
   ios: false
   windows:
     generate: true
-    image_path: assets/images/am_adel_logo.png
+    image_path: assets/images/rashedy.png
 
-  image_path: assets/images/am_adel_logo.png
+  image_path: assets/images/rashedy.png
   adaptive_icon_background: "#181818"
-  adaptive_icon_foreground: assets/images/am_adel_logo.png
+  adaptive_icon_foreground: assets/images/rashedy.png
+
+
+
+  #  flutter pub get
+  #  flutter pub run flutter_launcher_icons:main
+  #  shorebird patch --platforms=android --release-version=1.0.4+5
+  #  shorebird release android --artifact apk --target-platform=android-arm64 --flutter-version=3.38.4
+
+
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

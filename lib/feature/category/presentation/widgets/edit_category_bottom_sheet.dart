@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../../../core/helper_function/custom_show_snake_bar.dart';
 import '../../../../../core/utils/app_color.dart';
 import '../../../../../core/utils/style_manager.dart';
@@ -25,6 +28,11 @@ class _EditCategoryBottomSheetState extends State<EditCategoryBottomSheet> {
   late final TextEditingController _nameController;
   late final TextEditingController _sizeController;
   late List<String> _sizes;
+
+  final ImagePicker _picker = ImagePicker();
+
+  // بتبقى null طول ما المستخدم ما اختارش صورة جديدة
+  File? _newImage;
 
   @override
   void initState() {
@@ -63,10 +71,54 @@ class _EditCategoryBottomSheetState extends State<EditCategoryBottomSheet> {
     final normalizedSize = size.toLowerCase();
 
     final isDuplicate = _sizes.any(
-      (item) => item.trim().toLowerCase() == normalizedSize,
+          (item) => item.trim().toLowerCase() == normalizedSize,
     );
 
     return !isDuplicate;
+  }
+
+  Future<void> _pickImage() async {
+    if (context.read<CategoryCubit>().state is CategoryUpdateLoading) {
+      return;
+    }
+
+    FocusScope.of(context).unfocus();
+
+    try {
+      // الضغط بيتعمل في StorageServices وقت الرفع
+      final file = await _picker.pickImage(source: ImageSource.gallery);
+
+      if (file == null || !mounted) {
+        return;
+      }
+
+      setState(() {
+        _newImage = File(file.path);
+      });
+    } catch (e) {
+      debugPrint('pickImage error: $e');
+
+      if (!mounted) {
+        return;
+      }
+
+      customShowSnakeBar(
+        context,
+        color: AppColor.red,
+        label: 'تعذر اختيار الصورة، حاول مرة أخرى',
+      );
+    }
+  }
+
+  // إلغاء الصورة الجديدة والرجوع للصورة القديمة
+  void _resetImage() {
+    if (context.read<CategoryCubit>().state is CategoryUpdateLoading) {
+      return;
+    }
+
+    setState(() {
+      _newImage = null;
+    });
   }
 
   void _addSize() {
@@ -90,7 +142,7 @@ class _EditCategoryBottomSheetState extends State<EditCategoryBottomSheet> {
     final normalizedSize = size.toLowerCase();
 
     final isDuplicate = _sizes.any(
-      (item) => item.trim().toLowerCase() == normalizedSize,
+          (item) => item.trim().toLowerCase() == normalizedSize,
     );
 
     if (isDuplicate) {
@@ -161,12 +213,13 @@ class _EditCategoryBottomSheetState extends State<EditCategoryBottomSheet> {
     final updatedCategory = CategoryEntity(
       id: widget.category.id,
       name: name,
+      imageUrl: widget.category.imageUrl,
       sizes: List<String>.from(_sizes),
       createdAt: widget.category.createdAt,
       sortOrder: widget.category.sortOrder,
     );
 
-    cubit.updateCategory(updatedCategory);
+    cubit.updateCategory(updatedCategory, newImage: _newImage);
   }
 
   @override
@@ -199,7 +252,7 @@ class _EditCategoryBottomSheetState extends State<EditCategoryBottomSheet> {
           children: [
             CustomBottomSheetContainer(
               title: 'تعديل التصنيف',
-              subtitle: 'عدّل الإسم والمقاسات',
+              subtitle: 'عدّل الصورة والإسم والمقاسات',
               icon: Icons.edit,
               child: Form(
                 key: _formKey,
@@ -209,6 +262,25 @@ class _EditCategoryBottomSheetState extends State<EditCategoryBottomSheet> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        // ===== صورة التصنيف =====
+                        Text(
+                          'صورة التصنيف',
+                          style: StyleManager.font13Weight600(
+                            context,
+                          ).copyWith(color: AppColor.textPrimary),
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        _EditImageBox(
+                          newImage: _newImage,
+                          imageUrl: widget.category.imageUrl,
+                          onPick: isLoading ? null : _pickImage,
+                          onReset: isLoading ? null : _resetImage,
+                        ),
+
+                        const SizedBox(height: 20),
+
                         Text(
                           'اسم التصنيف',
                           style: StyleManager.font13Weight600(
@@ -292,9 +364,9 @@ class _EditCategoryBottomSheetState extends State<EditCategoryBottomSheet> {
                                   padding: EdgeInsets.zero,
                                   backgroundColor: AppColor.mainColor,
                                   disabledBackgroundColor:
-                                      AppColor.backgroundDark,
+                                  AppColor.backgroundDark,
                                   disabledForegroundColor:
-                                      AppColor.textSecondary,
+                                  AppColor.textSecondary,
                                   foregroundColor: AppColor.white,
                                   elevation: 0,
                                   shape: RoundedRectangleBorder(
@@ -344,8 +416,8 @@ class _EditCategoryBottomSheetState extends State<EditCategoryBottomSheet> {
                                       onTap: isLoading
                                           ? null
                                           : () {
-                                              _removeSize(size);
-                                            },
+                                        _removeSize(size);
+                                      },
                                       child: const Icon(
                                         Icons.close_rounded,
                                         color: AppColor.red,
@@ -385,19 +457,19 @@ class _EditCategoryBottomSheetState extends State<EditCategoryBottomSheet> {
                         onPressed: isLoading ? null : _updateCategory,
                         child: isLoading
                             ? const SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: AppColor.white,
-                                ),
-                              )
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColor.white,
+                          ),
+                        )
                             : Text(
-                                'حفظ التعديلات',
-                                style: StyleManager.font15Weight800(
-                                  context,
-                                ).copyWith(color: AppColor.white),
-                              ),
+                          'حفظ التعديلات',
+                          style: StyleManager.font15Weight800(
+                            context,
+                          ).copyWith(color: AppColor.white),
+                        ),
                       ),
                     ),
                   ],
@@ -410,6 +482,108 @@ class _EditCategoryBottomSheetState extends State<EditCategoryBottomSheet> {
           ],
         );
       },
+    );
+  }
+}
+
+/// بيعرض الصورة الحالية أو الجديدة، والضغط عليه بيغيرها
+class _EditImageBox extends StatelessWidget {
+  final File? newImage;
+  final String imageUrl;
+  final VoidCallback? onPick;
+  final VoidCallback? onReset;
+
+  const _EditImageBox({
+    required this.newImage,
+    required this.imageUrl,
+    required this.onPick,
+    required this.onReset,
+  });
+
+  Widget _placeholder(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          Icons.add_photo_alternate_outlined,
+          size: 40,
+          color: AppColor.accentColor,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'اضغط لاختيار صورة',
+          style: StyleManager.font12Weight500(
+            context,
+          ).copyWith(color: AppColor.textSecondary),
+        ),
+      ],
+    );
+  }
+
+  Widget _preview(BuildContext context) {
+    final file = newImage;
+
+    if (file != null) {
+      return Image.file(file, fit: BoxFit.cover);
+    }
+
+    if (imageUrl.isEmpty) {
+      return _placeholder(context);
+    }
+
+    return Image.network(
+      imageUrl,
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) => _placeholder(context),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final bool hasNewImage = newImage != null;
+
+    return Center(
+      child: Stack(
+        children: [
+          InkWell(
+            onTap: onPick,
+            borderRadius: BorderRadius.circular(16),
+            child: Container(
+              width: 150,
+              height: 150,
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: AppColor.background,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppColor.divider, width: 1.4),
+              ),
+              child: _preview(context),
+            ),
+          ),
+          if (hasNewImage || imageUrl.isNotEmpty)
+            PositionedDirectional(
+              top: 6,
+              end: 6,
+              child: Material(
+                color: AppColor.white,
+                shape: const CircleBorder(),
+                child: InkWell(
+                  // صورة جديدة: زرار إلغاء، غير كده: زرار تغيير
+                  onTap: hasNewImage ? onReset : onPick,
+                  customBorder: const CircleBorder(),
+                  child: Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Icon(
+                      hasNewImage ? Icons.close_rounded : Icons.edit_rounded,
+                      size: 18,
+                      color: hasNewImage ? AppColor.red : AppColor.mainColor,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

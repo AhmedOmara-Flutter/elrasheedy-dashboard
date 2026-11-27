@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => ClientsCubit(instance(), instance())),
         BlocProvider(create: (context) => GetProductWithReviewsCubit(instance()),),
         BlocProvider(create: (context) => GetReviewsCubit(instance()),),
-        BlocProvider(create: (context) => CategoryCubit(instance()),),
+        BlocProvider(create: (context) => CategoryCubit(instance(),instance()),),
         BlocProvider(create: (context) => ProductsCubit(instance()),),
         BlocProvider(create: (context) => OffersCubit(instance(), instance(),),),
         BlocProvider(create: (context) => OrdersCubit(instance()),),

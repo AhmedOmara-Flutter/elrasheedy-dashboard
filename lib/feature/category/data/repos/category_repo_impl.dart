@@ -67,6 +67,7 @@ class CategoryRepoImpl implements CategoryRepo {
     final updatedCategory = CategoryEntity(
       id: category.id,
       name: category.name,
+      imageUrl: category.imageUrl,
       sizes: category.sizes,
       createdAt: category.createdAt,
       sortOrder: sortOrder,
@@ -113,6 +114,7 @@ class CategoryRepoImpl implements CategoryRepo {
       final updatedCategory = CategoryEntity(
         id: category.id,
         name: category.name,
+        imageUrl: category.imageUrl,
         sizes: category.sizes,
         createdAt: category.createdAt,
         sortOrder: index,

@@ -23,7 +23,7 @@ class BuildCopyRight extends StatelessWidget {
           const SizedBox(height: 10),
 
           Text(
-            'عم عادل',
+            "مشويات رشيدي - 𝗥𝗮𝘀𝗵𝗲𝗲𝗗𝘆",
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: AppColor.textPrimary,
               fontSize: 13,

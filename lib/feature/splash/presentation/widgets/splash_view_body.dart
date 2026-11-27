@@ -281,7 +281,7 @@ class _SplashViewBodyState extends State<SplashViewBody> {
       decoration: BoxDecoration(
         image: DecorationImage(
           image: AssetImage(
-            Assets.assets.images.splashBg.path,
+            Assets.assets.images.img1.path,
           ),
           fit: BoxFit.cover,
         ),

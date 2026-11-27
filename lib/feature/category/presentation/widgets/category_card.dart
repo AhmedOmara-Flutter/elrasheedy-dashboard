@@ -30,7 +30,7 @@ class CategoryCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              _CategoryIcon(),
+              _CategoryImage(imageUrl: category.imageUrl),
               const SizedBox(width: 12),
               Expanded(
                 child: _CategoryHeader(category: category, hasSizes: hasSizes),
@@ -39,9 +39,11 @@ class CategoryCard extends StatelessWidget {
               _DragHandle(child: dragHandle),
             ],
           ),
-          SizedBox(height: 10),
-          if (hasSizes) _Sizes(sizes: category.sizes),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
+          if (hasSizes) ...[
+            _Sizes(sizes: category.sizes),
+            const SizedBox(height: 10),
+          ],
 
           Container(height: 1, color: AppColor.divider.withOpacity(.25)),
           SizedBox(height: 10),
@@ -73,22 +75,59 @@ class CategoryCard extends StatelessWidget {
   }
 }
 
-class _CategoryIcon extends StatelessWidget {
-  const _CategoryIcon();
+/// صورة القسم، ولو مفيش صورة أو ماحمّلتش بتظهر الأيقونة
+class _CategoryImage extends StatelessWidget {
+  final String imageUrl;
+
+  const _CategoryImage({required this.imageUrl});
+
+  static const double _size = 56;
+
+  Widget _fallback() {
+    return const Icon(
+      Icons.category_outlined,
+      color: AppColor.mainColor,
+      size: 24,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    // بنفك الصورة بحجم صغير علشان ما تستهلكش ذاكرة
+    final int cacheWidth =
+    (_size * 2 * MediaQuery.devicePixelRatioOf(context)).round();
+
     return Container(
-      width: 46,
-      height: 46,
+      width: _size,
+      height: _size,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColor.mainColor.withOpacity(.07),
         borderRadius: BorderRadius.circular(14),
       ),
-      child: const Icon(
-        Icons.category_outlined,
-        color: AppColor.mainColor,
-        size: 22,
+      child: imageUrl.isEmpty
+          ? _fallback()
+          : Image.network(
+        imageUrl,
+        width: _size,
+        height: _size,
+        fit: BoxFit.cover,
+        cacheWidth: cacheWidth,
+        loadingBuilder: (context, child, progress) {
+          if (progress == null) return child;
+
+          return const Center(
+            child: SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColor.accentColor,
+              ),
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) => _fallback(),
       ),
     );
   }
@@ -207,4 +246,3 @@ class _DragHandle extends StatelessWidget {
     );
   }
 }
-

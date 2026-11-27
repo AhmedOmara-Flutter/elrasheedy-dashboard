@@ -21,6 +21,8 @@ import '../../feature/offers/data/repos/offer_repo_impl.dart';
 import '../repos/orders_repo/orders_repo.dart';
 import '../repos/product_repo/product_repo.dart';
 import '../repos/product_repo/product_repo_impl.dart';
+import '../repos/upload_image_repo/upload_image_repo.dart';
+import '../repos/upload_image_repo/upload_image_repo_impl.dart';
 import '../../feature/reviews/domain/repos/review_repo.dart';
 import '../../feature/reviews/data/repos/review_repo_impl.dart';
 import 'database_services.dart';
@@ -30,6 +32,9 @@ final instance = GetIt.instance;
 void initAppModule() {
   instance.registerLazySingleton<DatabaseServices>(() => FirestoreDatabase());
   instance.registerLazySingleton<StorageServices>(() => SupabaseStorage());
+  instance.registerLazySingleton<UploadImageRepo>(
+        () => UploadImageRepoImpl(instance<StorageServices>()),
+  );
   instance.registerLazySingleton<ProductRepo>(() => ProductRepoImpl(instance()),);
   instance.registerLazySingleton<CategoryRepo>(() => CategoryRepoImpl(instance()),);
   instance.registerLazySingleton<OfferRepo>(() => OfferRepoImpl(instance()));

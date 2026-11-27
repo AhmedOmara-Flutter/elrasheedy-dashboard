@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
 import 'package:elrasheedy_dashboard/core/errors/failure.dart';
 import 'package:elrasheedy_dashboard/core/services/database_services.dart';
-
 import '../models/restaurant_status_model.dart';
 import '../../domain/repos/settings_repo.dart';
 import '../../domain/entities/restaurant_status_entity.dart';

@@ -14,8 +14,8 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Supabase.initialize(
-    url: 'https://iwpajzhxqoniotvcwdwc.supabase.co',
-    anonKey: 'sb_publishable_H-Yl3IPOSuUp3krL4tOOPA_uG8OIx_A',
+    url: 'https://ajxmzwehjmxdzcwfvght.supabase.co',
+    publishableKey : 'sb_publishable__rv1VIGi6qrjfBubITJfEA_XW-VydVX',
   );
 
   runApp(MyApp());
